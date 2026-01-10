@@ -1,4 +1,5 @@
 from mcp.server.fastmcp import FastMCP
+from pydantic import Field
 
 mcp = FastMCP("DocumentMCP", log_level="ERROR")
 
@@ -12,8 +13,31 @@ docs = {
     "spec.txt": "These specifications define the technical requirements for the equipment.",
 }
 
-# TODO: Write a tool to read a doc
-# TODO: Write a tool to edit a doc
+@mcp.tool(
+    name="read_doc_content",
+    description="Read the content of a document",
+)
+def read_doc_content(
+    doc_id: str = Field(description="ID of the document to read")
+) -> str:
+    if doc_id not in docs:
+        raise ValueError(f"Document {doc_id} not found")
+    return docs[doc_id]
+
+@mcp.tool(
+    name="edit_document",
+    description="Edit the content of a document by replacing a string in the documents content with a new string",
+)
+def edit_document(
+    doc_id: str = Field(description="ID of the document that will be edited"),
+    old_str: str = Field(description="String to replace. Must match exactly, including whitespace"),
+    new_str: str = Field(description="New string to replace with"),
+) -> str:
+    if doc_id not in docs:
+        raise ValueError(f"Document {doc_id} not found")
+    docs[doc_id] = docs[doc_id].replace(old_str, new_str)
+    return docs[doc_id]
+
 # TODO: Write a resource to return all doc id's
 # TODO: Write a resource to return the contents of a particular doc
 # TODO: Write a prompt to rewrite a doc in markdown format
