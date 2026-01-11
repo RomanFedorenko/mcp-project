@@ -68,7 +68,22 @@ def rewrite_doc_in_markdown(doc_id: str = Field(description="ID of the document 
     """
     return [base.UserMessage(prompt)]
 
-# TODO: Write a prompt to summarize a doc
+@mcp.prompt(
+    name="summarize",
+    description="Summarize the content of a document.",
+)
+def summarize_doc(doc_id: str = Field(description="ID of the document to summarize")) -> list[base.Message]:
+    if doc_id not in docs:
+        raise ValueError(f"Document {doc_id} not found")
+    prompt = f"""
+    You are a world-class document summarizer. Your goal is to summarize the content of the document.
+    The id of the document you need to summarize is:
+    <document_id>
+    {doc_id}
+    </document_id>
+    Use the 'read_doc_content' tool to read the document. After the document has been read, return the summary of the document.
+    """
+    return [base.UserMessage(prompt)]
 
 
 if __name__ == "__main__":
